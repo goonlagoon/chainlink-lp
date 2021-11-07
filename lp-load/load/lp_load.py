@@ -23,6 +23,8 @@ def get_unread_files(spark, hdfs_path, pool_id, latest_epoch):
     list_status = fs.listStatus(spark._jvm.org.apache.hadoop.fs.Path(path))
     file_names = [file.getPath().getName() for file in list_status if file.getPath().getName().split("=")[-1] > str(latest_epoch)]
     file_names = [file for file in file_names if file != "_SUCCESS"]
+    if len(file_names) == 0:
+        exit()
     file_paths = ["/".join([hdfs_path, "clean", pool_id, file_name, "*"]) for file_name in file_names]
     print("INFO: READING FILES FROM PATHS", file_paths)
     latest_epoch = int(max([file.split("=")[-1] for file in file_names]))

@@ -52,7 +52,7 @@ if __name__ == "__main__":
         df
         .withColumn("insert_ts", F.to_timestamp("insert_ts"))
         .withColumn("insert_timestamp_hour", F.date_trunc("hour", F.col("insert_ts")))
-        .withColumn("insert_ts_hour_epoch", F.col("insert_timestamp_hour").cast("long"))
+        .withColumn("partition_epoch", F.date_trunc("minute", F.col("insert_ts")).cast("long"))
         .withColumn("pk", F.concat_ws("-", F.col("poolid"), F.col("insert_ts")))
     )
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         (
             df
                 .write
-                .partitionBy("insert_ts_hour_epoch")
+                .partitionBy("partition_epoch")
                 .save("/".join([args.hdfs_path, "clean", args.pool_id]), format="avro", mode='append')
         )
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         df
             .filter((F.col("liquidity") == 0) | (F.col("volume_usd") == 0))
             .write
-            .partitionBy("insert_timestamp_hour")
+            .partitionBy("partition_epoch")
             .save("/".join([args.hdfs_path, "health_check"]), format="avro", mode='overwrite')
     )
 
