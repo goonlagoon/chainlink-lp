@@ -18,7 +18,7 @@ To view the performance of your cluster navigate to:
 Spark Web UI: http://localhost:8080/
 HDFS Web UI: http://localhost:9870/explorer.html#/user/root/
 
-Captured metrics are cleaned and loaded by append-only jobs running at 5 minute intervals.  
+Captured metrics are cleaned and loaded by append-only pyspark jobs running at 5 minute intervals.  
 
 To access the SQL command line of the indexed RDBMS:
 
@@ -36,23 +36,40 @@ This ETL service leverages HDFS and Spark for distributed storage and compute, e
 
 Append-only jobs keep compute and runtime consistent regardless of data volume. 
 
+Th
+
 ## Additional LPs
-To add another liquidity pool into the pipeline, add the following service config to the `docker-compose.yml` file.
+To add another liquidity pool into the pipeline, add another ingest configuration file similar to `badgerdao_ingest.env` to the configs folder.
+
+```env
+subgraph=SUBGRAPH_PATH
+poolId=POOL_ID_FIELD_NAME
+tokenId=TOKEN_ID_TO_FILTER
+liquidity=LIQUIDITY_FIELD_NAME
+volumeUSD=VOLUME_FIELD_NAME
+timeout=TIMEOUT_BETWEEN_REQUESTS
+records_per_file=RECORDS_TO_BATCH_PER_FILE
+```
+
+and add the following service config to the `docker-compose.yml` file.
 
 ```yml
 version: '3'
 services:
-    ingest:
-        build: ./lp-ingest
-        container_name: lp_ingest
-        restart: always
-        depends_on:
-        - postgres
-        ports: 
-        - "5000:5000"
-        environment:
+  ingest:
+    build: ./lp-ingest
+    container_name: lp_ingest-X
+    restart: always
+    depends_on:
+    - postgres
+    ports: 
+    - "5000:5000"
+    environment:
         WAIT_HOSTS: postgres:5432
         SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+        - ./config/NEW_INGEST_CONFIG_FILE.env
+    
 ```
 
 ## Additional Storage
@@ -81,16 +98,20 @@ To add more compute capacity, add the following service config to the `docker-co
 ```yml
 version: '3'
 services:
-    spark-worker-1:
-        image: bde2020/spark-worker:3.0.0-hadoop3.2
-        container_name: spark-worker-X
-        depends_on:
-        - spark-master
-        ports:
-        - "8082:8081"
-        environment:
-        - "SPARK_MASTER=spark://spark-master:7077"
-        - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
-        env_file:
-        - ./config/hadoop.env
+  spark-worker-1:
+    image: bde2020/spark-worker:3.0.0-hadoop3.2
+    container_name: spark-worker-X
+    depends_on:
+    - spark-master
+    ports:
+    - "8082:8081"
+    environment:
+    - "SPARK_MASTER=spark://spark-master:7077"
+    - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    env_file:
+    - ./config/hadoop.env
 ```
+
+## Health Checks
+
+Ingest job outputs 0 for liquidity and volume metric requests that fail. Preview failing epochs at http://localhost:9870/explorer.html#/user/root/health_checks  

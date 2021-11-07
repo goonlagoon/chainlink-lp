@@ -25,6 +25,8 @@ services:
     environment:
       WAIT_HOSTS: postgres:5432
       SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+      - ./config/badgerdao_ingest.env
 
 
   namenode:

@@ -9,4 +9,5 @@ RUN chmod +x /wait
 CMD /wait && npm start
 
 COPY src/ .
-CMD [ "python", "./ingest.py" ]
+RUN chmod +x /submit.sh
+CMD ["/bin/bash", "/submit.sh"]
