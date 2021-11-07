@@ -31,7 +31,7 @@ Sample query:
 
 ## High-level Architecture
 
-![Architecture Diagram](https://github.com/goonlagoon/chainlink-lp/tree/main/media/architecture.png?raw=true)
+![Architecture Diagram](https://github.com/goonlagoon/chainlink-lp/blob/main/media/architecture.png?raw=true)
 
 
 ## Additional LPs
