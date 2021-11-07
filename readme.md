@@ -114,4 +114,4 @@ services:
 
 ## Health Checks
 
-Ingest job outputs 0 for liquidity and volume metric requests that fail. Preview failing epochs at http://localhost:9870/explorer.html#/user/root/health_checks  
+Ingest job outputs 0 for liquidity and volume metric requests that fail. Preview failing epochs at http://localhost:9870/explorer.html#/user/root/health_check  
