@@ -34,9 +34,12 @@ This ETL service leverages HDFS and Spark for distributed storage and compute, e
 
 ![Architecture Diagram](https://github.com/goonlagoon/chainlink-lp/blob/main/media/architecture.png?raw=true)
 
-Append-only jobs keep compute and runtime consistent regardless of data volume. 
+### Jobs
+Append-only jobs keep compute and runtime consistent regardless of accumulated data volume. 
+![Architecture Diagram](https://github.com/goonlagoon/chainlink-lp/blob/main/media/jobs.png?raw=true)
 
-Th
+### Field Flexibility
+Avro data serialization format allows for pipeline flexibility should you like to add more metrics beyond liquidity and volume.
 
 ## Additional LPs
 To add another liquidity pool into the pipeline, add another ingest configuration file similar to `badgerdao_ingest.env` to the configs folder.
