@@ -15,8 +15,8 @@ Run the following command to spin up the `docker-compose.yml` services on a dock
 
 To view the performance of your cluster navigate to:
 
-Spark Web UI: http://localhost:8080/
-HDFS Web UI: http://localhost:9870/explorer.html#/user/root/
+* Spark Web UI: http://localhost:8080/
+* HDFS Web UI: http://localhost:9870/explorer.html#/user/root/
 
 Captured metrics are cleaned and loaded by append-only pyspark jobs running at 5 minute intervals.  
 

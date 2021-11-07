@@ -124,4 +124,4 @@ if __name__ == "__main__":
 			time.sleep(int(config["timeout"]))
 			
 	except KeyboardInterrupt:
-		print("INGEST INTERRUPTED")
+		print("ERROR: INGEST INTERRUPTED")
