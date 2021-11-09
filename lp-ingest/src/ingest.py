@@ -9,10 +9,10 @@ if __name__ == "__main__":
 
 	config = {
 		"subgraph": os.getenv("subgraph"),
-		"poolId": os.getenv("poolId"),
-		"tokenId": os.getenv("tokenId"),
+		"poolid": os.getenv("poolId"),
+		"tokenid": os.getenv("tokenId"),
 		"liquidity": os.getenv("liquidity"),
-		"volumeUSD": os.getenv("volumeUSD"),
+		"volumeusd": os.getenv("volumeUSD"),
 		"timeout": os.getenv("timeout"),
 		"records_per_file": os.getenv("records_per_file"),
 	}
