@@ -27,9 +27,9 @@ def get_unread_files(spark, hdfs_path, pool_id, latest_epoch):
         exit()
     file_paths = ["/".join([hdfs_path, "clean", pool_id, file_name, "*"]) for file_name in file_names]
     print("INFO: READING FILES FROM PATHS", file_paths)
-    latest_epoch = int(max([file.split("=")[-1] for file in file_names]))
-    print("INFO: LATEST EPOCH", latest_epoch)
-    return (file_paths, latest_epoch)
+    newest_epoch = int(max([file.split("=")[-1] for file in file_names]))
+    print("INFO: LATEST EPOCH", newest_epoch)
+    return (file_paths, newest_epoch)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("lp_load")
@@ -54,8 +54,10 @@ if __name__ == "__main__":
     
     job_config_path = "/job_config.yml"
     latest_epoch = get_lower_bound_ts(job_config_path)
-    files, latest_epoch = get_unread_files(spark, args.hdfs_path, args.pool_id, latest_epoch)
-
+    files, newest_epoch = get_unread_files(spark, args.hdfs_path, args.pool_id, latest_epoch)
+    if latest_epoch == newest_epoch:
+        print("INFO: QUITTING JOB NO NEW DATA")
+        quit()
     df = spark.read.format("com.databricks.spark.avro").load(files)
 
     psql_url = "jdbc:postgresql://postgres:{0}/{1}".format(args.pg_port, args.pg_db) 
@@ -71,6 +73,6 @@ if __name__ == "__main__":
         )
 
         with open(job_config_path, "w") as f:
-                yaml.dump({'latest_epoch': latest_epoch}, f)
+                yaml.dump({'latest_epoch': newest_epoch}, f)
     except:
         print("ERROR: JDBC WRITE FAILED")

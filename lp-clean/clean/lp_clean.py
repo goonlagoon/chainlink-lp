@@ -24,9 +24,9 @@ def get_unread_files(spark, hdfs_path, pool_id, latest_epoch):
     file_names = [file.getPath().getName() for file in list_status if file.getPath().getName().split("_")[-1].split(".")[0] > str(latest_epoch)]
     file_paths = ["/".join([hdfs_path, "raw", pool_id, file_name]) for file_name in file_names]
     print("INFO: READING FILES FROM PATHS", file_paths)
-    latest_epoch = int(max([file.split("_")[-1].split(".")[0] for file in file_names]))
-    print("INFO: LATEST EPOCH", latest_epoch)
-    return (file_paths, latest_epoch)
+    newest_epoch = int(max([file.split("_")[-1].split(".")[0] for file in file_names]))
+    print("INFO: LATEST EPOCH", newest_epoch)
+    return (file_paths, newest_epoch)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("lp_clean")
@@ -44,8 +44,11 @@ if __name__ == "__main__":
     spark = SparkSession(sc)
     job_config_path = "/job_config.yml"
     latest_epoch = get_lower_bound_ts(job_config_path)
-    files, latest_epoch = get_unread_files(spark, args.hdfs_path, args.pool_id, latest_epoch)
-
+    files, newest_epoch = get_unread_files(spark, args.hdfs_path, args.pool_id, latest_epoch)
+    if latest_epoch == newest_epoch:
+        print("INFO: QUITTING JOB NO NEW DATA")
+        quit()
+    df = spark.read.format("com.databricks.spark.avro").load(files)
     df = spark.read.format("com.databricks.spark.avro").load(files)
 
     df = (
@@ -66,7 +69,7 @@ if __name__ == "__main__":
         )
 
         with open(job_config_path, "w") as f:
-            yaml.dump({'latest_epoch': latest_epoch}, f)
+            yaml.dump({'latest_epoch': newest_epoch}, f)
             
     except:
         print("ERROR: HDFS WRITE FAILED")
